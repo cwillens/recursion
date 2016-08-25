@@ -14,18 +14,37 @@ var stringifyJSON = function(obj) {
   else if (typeof obj === "undefined" || typeof obj==="symbol" || typeof obj==="function") {
   	return undefined;
   }
-  else if (if Array.isArray(obj)) {
+  else if (Array.isArray(obj)) {
 	var result = "[";
-	for (var i=0; i<obj.length; i++) {
-		if (i<obj.length-1) {
-			if (stringifyJSON(obj[i])===undefined) result = result + "null" + ",";
-			else result = result + stringifyJSON(obj[i]) + ",";
-		}
-		else {
-			if (stringifyJSON(obj[i])===undefined) result = result + "null" + "]";
-			else result = result + stringifyJSON(obj[i]) + "]";
+	if (obj.length===0) result+="]";
+	else {
+		for (var i=0; i<obj.length; i++) {
+			if (i<obj.length-1) {
+				if (stringifyJSON(obj[i])===undefined) result = result + "null" + ",";
+				else result = result + stringifyJSON(obj[i]) + ",";
+			}
+			else {
+				if (stringifyJSON(obj[i])===undefined) result = result + "null" + "]";
+				else result = result + stringifyJSON(obj[i]) + "]";
+			}
 		}
 	}
 	return result;
+  }
+  else if (typeof obj==="object") {
+  	var result = "{";
+  	var i=0;
+  	if (Object.keys(obj).length===0) result += "}";
+  	for (var key in obj) {
+  		if (i<Object.keys(obj).length-1) {
+			if (stringifyJSON(obj[key])!==undefined) result = result + stringifyJSON(key) + ":" + stringifyJSON(obj[key]) + ",";	
+  		}
+		else {
+			if (stringifyJSON(obj[key])!==undefined) result = result + stringifyJSON(key) + ":" + stringifyJSON(obj[key]) + "}";
+			else result+="}";	
+		}
+		i++;
+  	}
+  	return result;
   }
 };

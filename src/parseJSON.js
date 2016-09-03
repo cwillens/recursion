@@ -18,13 +18,17 @@ var parseJSON = function(json) {
     nextChar();
     return parseArray(json);
   }
-  else if (json.charAt(0)==="{") return parseObject(json);
+  else if (json.charAt(0)==="{") {
+  	nextChar();
+  	return parseObject(json);
+  }
   else if (["0","1","2","3","4","5","6","7","8","9"].indexOf(json.charAt(0)) > -1) return parseNumber(json);
   else if (["null", "true", "false"].indexOf(json)>-1) return parseOther(json);
   else if (json.charAt(0)===" ") nextChar();
 
   function parseString(input) {
-  	return input.slice(1, input.length-1);
+  	if (input==="\"\"") return "";
+  	else return input.slice(1, input.length-1);
   }
 
   function parseNumber (input) {
@@ -39,6 +43,7 @@ var parseJSON = function(json) {
   }
 
   function parseArray (input) {
+  	if (if input==="[]") return [];
   	var result = [];
   	var item = "";
   	while (currentChar!==","&& currentIndex<json.length-1) {
@@ -53,6 +58,50 @@ var parseJSON = function(json) {
   	return result;
   }
 
+  function parseObject(input) {
+  	if input==="{}" return {};
+  	var result={};
+  	var key="";
+  	var item="";
+  	//grab key
+  	while (currentChar!==":"&& currentIndex<json.length-1) {
+  		key+=currentChar;
+  		nextChar();
+  	}
+  	if (currentChar===":") nextChar();
+  	//grab item
+  	if (currentChar==="[") {
+      while (currentChar!=="]"&& currentIndex<json.length-1) {
+          item+=currentChar;
+          nextChar();
+      } 
+      item+="]";
+      nextChar();
+  	}
+  	else if (currentChar==="{") {
+      while (currentChar!=="}"&& currentIndex<json.length-1) {
+          item+=currentChar;
+          nextChar();
+      } 
+      item+="}";
+      nextChar();
+  	}
+  	else {
+      while (currentChar!==","&& currentIndex<json.length-1) {
+          item+=currentChar;
+          nextChar();
+      } 
+  	}
+  	nextChar();
+  	result[parseJSON(key)]= parseJSON(item);
+  	
+  	while (currentIndex<json.length-1) {
+  		$.extend(result, parseObject("{"+input.slice(currentIndex)));
+  	}
+  	return result;  	
+  }
+
 
 
 };
+

@@ -14,6 +14,11 @@ var parseJSON = function(json) {
   	currentChar = json[currentIndex];
   }
 
+  //clear spaces and other blanks
+  var clearBlanks = function() {
+    while (currentChar===" "||currentChar==="\n"||currentChar==="\t"||currentChar==="\r") nextChar();
+  }
+
   if (json.charAt(0)==="\"") return parseString(json);
   else if (json.charAt(0)==="[") {
     nextChar();
@@ -24,7 +29,7 @@ var parseJSON = function(json) {
   	return parseObject(json);
   }
   else if (["0","1","2","3","4","5","6","7","8","9", ".", "-"].indexOf(json.charAt(0)) > -1) return parseNumber(json);
-  else if (["null", "true", "false"].indexOf(json)>-1) return parseOther(json);
+  else if (["null", "true", "false"].indexOf(json.trim())>-1) return parseOther(json);
   else if (json.charAt(0)===" ") nextChar();
 
   function parseString(input) {
@@ -38,8 +43,8 @@ var parseJSON = function(json) {
 
   function parseOther (input) {
   	//probably a nicer way to do this
-  	if (input==="null") return null;
-  	else if (input==="true") return true;
+  	if (input.trim()==="null") return null;
+  	else if (input.trim()==="true") return true;
   	else return false;
   }
 
@@ -50,7 +55,7 @@ var parseJSON = function(json) {
   	var numSquare=0; //to keep track of square brackets
   	var numCurly=0; //to keep track of curly brackets
   	//cut out blank spaces
-  	while (currentChar===" ") nextChar();
+  	clearBlanks();
 
   	if (currentChar==="[") {
   	  numSquare+=1;	
@@ -76,18 +81,32 @@ var parseJSON = function(json) {
       } 
      // nextChar();
   	}
+  	else if (currentChar==="\"") {
+      item+=currentChar;
+      nextChar();
+      while (currentChar!=="\"" && currentIndex<json.length-1) {
+          item+=currentChar;
+          nextChar();
+      } 
+      item+="\"";
+      nextChar();
+      //cut off possible blanks before the comma
+      var endItem=item.length-1;
+      while (item.charAt(endItem)===" "||item.charAt(endItem)==="\n"||item.charAt(endItem)==="\t"||item.charAt(endItem)==="\r") {
+        if (item.charAt(endItem)===" ") endItem-=1;
+        else endItem-=2;
+      } 
+      item=item.slice(0,endItem+1);
+  	}
+
   	else {
       while (currentChar!==","&& currentIndex<json.length-1) {
           item+=currentChar;
           nextChar();
       } 
-      //cut off possible blanks before the comma
-      var endItem=item.length;
-      while (item.charAt(endItem)===" ") endItem-=1;
-      item=item.slice(0,endItem);
   	}
   	//cut out blank spaces
-  	while (currentChar===" ") nextChar();
+  	clearBlanks();
   	//go past comma
   	nextChar();
   	if (currentChar===" ") nextChar();
@@ -106,10 +125,11 @@ var parseJSON = function(json) {
   	var item="";
   	var numSquare=0; //to keep track of square brackets
   	var numCurly=0; //to keep track of curly brackets
+  	var numQuotes=0;
 
   	//grab key
     //want to start after possible blanks
-  	while (currentChar===" ") nextChar();
+  	clearBlanks();
   	while (currentChar!==":"&& currentIndex<json.length-1) {
   		key+=currentChar;
   		nextChar();
@@ -119,7 +139,7 @@ var parseJSON = function(json) {
   	key=key.slice(0,endKey+1);
   	if (currentChar===":") nextChar();
   	//cut out blank spaces
-  	while (currentChar===" ") nextChar();
+  	clearBlanks();
   	//grab item
   	if (currentChar==="[") {
   	  numSquare+=1;
@@ -145,18 +165,31 @@ var parseJSON = function(json) {
       } 
      // nextChar();
   	}
+  	else if (currentChar==="\"") {
+      item+=currentChar;
+      nextChar();
+      while (currentChar!=="\"" && currentIndex<json.length-1) {
+          item+=currentChar;
+          nextChar();
+      } 
+      item+="\"";
+      nextChar();
+      //cut off possible blanks before the comma
+      var endItem=item.length-1;
+      while (item.charAt(endItem)===" "||item.charAt(endItem)==="\n"||item.charAt(endItem)==="\t"||item.charAt(endItem)==="\r") {
+        if (item.charAt(endItem)===" ") endItem-=1;
+        else endItem-=2;
+      } 
+      item=item.slice(0,endItem+1);
+  	}
   	else {
       while (currentChar!==","&& currentIndex<json.length-1) {
           item+=currentChar;
           nextChar();
       } 
-      //cut off possible blanks before the comma
-      var endItem=item.length;
-      while (item.charAt(endItem)===" ") endItem-=1;
-      item=item.slice(0,endItem);
   	}
   	//cut out blank spaces if there are some before the comma
-  	while (currentChar===" ") nextChar();
+  	clearBlanks();
   	nextChar(); 
   	if (currentChar===" ") nextChar();
   	result[parseJSON(key)]= parseJSON(item);

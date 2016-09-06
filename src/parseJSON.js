@@ -2,6 +2,10 @@
 // var parseJSON = JSON.parse;
 
 // but you're not, so you'll write it from scratch:
+/* this doesn't pass the all tests - I had trouble with the escaping test, and didn't have a 
+chance to implement making the function throw an error for an invalid json string. But feel free
+to take a look if you like*/
+
 var parseJSON = function(json) {
   // your code goes here
   // your code goes here
@@ -42,7 +46,6 @@ var parseJSON = function(json) {
   }
 
   function parseOther (input) {
-  	//probably a nicer way to do this
   	if (input.trim()==="null") return null;
   	else if (input.trim()==="true") return true;
   	else return false;
@@ -67,7 +70,6 @@ var parseJSON = function(json) {
           item+=currentChar;
           nextChar();
       } 
-     // nextChar();
   	}
   	else if (currentChar==="{") {
   	  numCurly+=1;
@@ -79,7 +81,6 @@ var parseJSON = function(json) {
           item+=currentChar;
           nextChar();
       } 
-     // nextChar();
   	}
   	else if (currentChar==="\"") {
       item+=currentChar;
@@ -151,7 +152,6 @@ var parseJSON = function(json) {
           item+=currentChar;
           nextChar();
       } 
-     // nextChar();
   	}
   	else if (currentChar==="{") {
   	  numCurly+=1;
@@ -163,7 +163,6 @@ var parseJSON = function(json) {
           item+=currentChar;
           nextChar();
       } 
-     // nextChar();
   	}
   	else if (currentChar==="\"") {
       item+=currentChar;
